@@ -1,6 +1,43 @@
+<!-- Breadcrumbs -->
+< [Lab.SCHC FullSDK Documentation](/README.md) /
+<!-- /Breadcrumbs -->
+
 # FullSDK Concepts
 
-Lorem ipsum. TOC
+<!-- TOC -->
+
+  - [Preface](#preface)
+      - [Intended audience](#intended-audience)
+      - [Related documents](#related-documents)
+  - [General architecture](#general-architecture)
+      - [Overview](#overview)
+      - [Datagram and Network layers](#datagram-and-network-layers)
+          - [Datagram layer](#datagram-layer)
+          - [Network layer](#network-layer)
+      - [C/D layer](#cd-layer)
+      - [F/R layer](#fr-layer)
+      - [MUX layer](#mux-layer)
+      - [L2A layer](#l2a-layer)
+      - [Management layer](#management-layer)
+  - [Flow control](#flow-control)
+  - [Interfaces](#interfaces)
+      - [Management interface](#management-interface)
+      - [Datagram interface](#datagram-interface)
+      - [Network interface](#network-interface)
+      - [Layer-two adaptation interface](#layer-two-adaptation-interface)
+  - [How to use the lab.SCHC FullSDK](#how-to-use-the-labschc-fullsdk)
+      - [Role](#role)
+      - [Layer integration](#layer-integration)
+      - [Paradigm](#paradigm)
+      - [Sequence diagrams](#sequence-diagrams)
+          - [Interface initialization and configuration](#interface-initialization-and-configuration)
+          - [Packet transmission with fragmentation](#packet-transmission-with-fragmentation)
+          - [Packet reception without fragmentation](#packet-reception-without-fragmentation)
+          - [L2A layer initialization and transmission handling](#l2a-layer-initialization-and-transmission-handling)
+      - [Bare metal projects](#bare-metal-projects)
+      - [RTOS projects](#rtos-projects)
+
+<!-- /TOC -->
 
 ## Preface
 
@@ -27,16 +64,29 @@ paradigm.
 
 The diagram below depicts the overall architecture of the lab.SCHC FullSDK.
 
-[#TODO](layers-diagram)
+![fullsdk-architecture-layers](/img/concepts/architecture-layers.png "FullSDK
+Layers")
 
-FullSDK is the part with a light yellow background. The layers with a white
-background must be provided by the integrator.
+Lab.SCHC FullSDK is the part with a dashed background and implements the layers
+with a black background. The layers with a white background must be provided by
+the integrator.
 
-### Datagram layer
+### Datagram and Network layers
+
+Network and datagram layers provide the communication interface to the customer
+application. FullSDK may contain **only one** of the two layers. The choice is
+performed at build time.
+
+#### Datagram layer
 
 The datagram layer provides the communication interface to the application. It
 provides an API similar to the Berkeley UDP socket API, with functions to create
 a socket, to send a message and to receive a message.
+
+#### Network layer
+
+The Network layer provides an API that allows the application to send and
+receive raw IP packets.
 
 ### C/D layer
 
@@ -60,7 +110,8 @@ directly handed over to the [MUX layer](#mux-layer).
 
 When a packet is received from the layer below, it is provided to the right
 reassembly code according to the fragmentation type set in the profile, or
-handed over to the layer above when it is a non fragmented packet.
+handed over to the layer above when it is a non fragmented packet. Ultimately,
+the fragmentation type is preconfigured based on the L2 technology profile.
 
 For downlink ACK-Always and No-ACK fragmentation sessions, the F/R layer
 provides a [polling mechanism](#todo).
@@ -109,8 +160,24 @@ handling, when needed.
 
 ## Interfaces
 
-[Three](#todo) interfaces have to be considered: datagram interface, management
-interface, and layer-two adaptation interfaces
+[Four](#todo) interfaces have to be considered: management interface, datagram
+and network interfaces, and layer-two adaptation interface.
+
+### Management interface
+
+The management interface is used to configure the lab.SCHC FullSDK at runtime,
+to provide some hardware resources (memory and timers) that have to be allocated
+by the execution environment, and to notify the application about information
+regarding the FullSDK ongoing state.
+
+| Object | Management |
+| --- | --- |
+| Processing Power | Whenever the SDK needs to perform processing, it signals it to the application layer that will call a dedicated function. |
+| Timers | Resolving a timer must be done in 1 ms. The execution environment must provide a callback that starts the time for n ms, and a callback that stops it. When the timeout is triggered, a dedicated function must be called. |
+| Volatile memory (RAM) | Lab.SCHC FullSDK is flexible in terms of memory management. The application must allocate, then provide memory to the SDK. The amount of memory required depends on both the MTU and the maximum payload the application expects to send and receive. |
+| Ongoing state | The connectivity state, i.e. whether layer 2 may send or receive data, is signaled to the application layer using a callback. The application layer should not request to send a packet before connectivity is reported as operational. |
+
+> **_Info:_** All the callbacks are defined when initializing the layers.
 
 ### Datagram interface
 
@@ -126,13 +193,13 @@ be performed to send a packet:
 4. Send a data packet to the remote application, using the socket as a context.
    The remote application is defined by its IPv6/v4 address and its port.
 
-The *send* operation is non-blocking and asynchronous:
+The `send` operation is non-blocking and asynchronous:
 
 - It requests a transmission operation and returns immediately.
 - The result of the transmission (success or failure) is received later, thanks
   to a callback declared at interface initialization.
 
-Depending on the packet size and LPWAN technology, a *send* operation can be
+Depending on the packet size and LPWAN technology, a `send` operation can be
 quite long. For instance, if the packet size is larger than the LPWAN maximum
 transmission unit (MTU), it will be fragmented and sent in several chunks.
 Furthermore, duty cycle limitation may increase the overall transmission time.
@@ -143,49 +210,36 @@ In the current version of the lab.SCHC FullSDK, a maximum of [three
 sockets](#todo) can be created by default. The number of available sockets can
 be changed at compilation time.
 
-### Management interface
+### Network interface
 
-The management interface is used to configure the lab.SCHC FullSDK at runtime,
-to provide some hardware resources (memory and timers) that have to be allocated
-by the execution environment, and to notify the application about information
-regarding the FullSDK ongoing state.
+The network interface is used to send and receive raw IPv6/UDP data packets to
+and from a remote application.
 
-#### Environment resources
+The following operations have to be performed to send a packet:
+- Initialize interface configure network.
+- Information thanks to [extension API](#todo-or-remove?)
+- Send a raw IPv6/UDP data packet to the remote application
 
-The execution environment must provide some resources to the FullSDK. These
-resources are:
+The *send* operation is non-blocking and asynchronous:
+- It requests a transmission operation and returns immediately
+- The result of the transmission (success or failure) is received later, thanks
+to a callback declared at initialization time
 
-- Some processing power. Every time the FullSDK requires some processing to be
-  performed, it signals it to the application layer. It is then up to the
-  application to perform this processing, by calling a dedicated function.
-- A few timers. For every timer, the execution environment must provide a
-  callback that starts it for a given duration (expressed in ms), and a another
-  callback that stops it. When the timeout is triggered, a dedicated function
-  must be called.
-- Volatile memory (RAM). The FullSDK is flexible in terms of memory management.
-  The application must allocate and then provide the necessary memory (that is
-  determined based on the LPWAN maximum transmission unit (MTU) and on the
-  maximum payload that the application expects to send and receive) to the
-  FullSDK stack.
+Depending on packet size and LPWAN technology, a *send* operation can be quite
+long. For instance, if packet size is larger than the LPWAN's maximum
+transmission unit (MTU), it will be fragmented and sent in several chunks.
+Furthermore, duty cycle limitation may increase overall transmission time.
 
-Callbacks are defined at layer initialization time.
-
-#### Ongoing state
-
-Connectivity state (whether the layer two may send or receive data) is signaled
-to the application layer, using a callback defined at layer initialization time.
-
-The application layer should not request to send a packet before the
-connectivity has been signalled as being operational.
+Packet reception is handled by a callback declared at initialization time.
 
 ### Layer-two adaptation interface
 
 The [L2A layer](#l2a-layer) allows the FullSDK to be independent of the layer
 two stack.
 
-Since L2A layer does depend on the layer two, it is usually provided by the
-integrator. It must comply with a predefined interface which stipulates the
-following elements:
+Since L2A layer does depend on the underlying LPWAN technology, it is usually
+provided by the integrator. It must comply with a predefined interface which
+stipulates the following elements:
 
 - A set of callbacks, defined at layer initialization time, that must be called
   for the following events:
@@ -232,17 +286,31 @@ stack.
 This section describes the logic of initializing, configuring, and using the
 lab.SCHC FullSDK in different scenarios.
 
+### Role
+
+The role of lab.SCHC FullSDK is to enable the SCHC compression and fragmentation
+mechanisms on device side, either by being fully embedded into an AT modem
+application that receives messages from an UDP client, or by being deployed on
+the device directly.
+
+### Layer integration
+
+Lab.SCHC FullSDK integrates with both the underlying LPWAN technology and the upper application layer.
+
+The configuration of lab.SCHC FullSDK at runtime, the exchange of packets or the adaptation with the Level2 layer are tasks assumed by [interfaces](#interfaces), each provided in a dedicated header file.
+
 ### Paradigm
 
 One major structuring requirement for the lab.SCHC FullSDK is the ability to
 support low power modes. Consequently, its implementation allows it to be fully
 integrated in an **event-driven** environment.
 
-When an event concerning the lab.SCHC FullSDK occurs (e.g. data reception,
-timeout, etc.), the application layer is informed by a callback. It is then up
-to it to decide when to let the lab.SCHC FullSDK process the event, by calling a
-dedicated function. Once an event has been processed (the dedicated function has
-returned), the lab.SCHC FullSDK does not perform any additional processing.
+1. When an event concerning the lab.SCHC FullSDK occurs (e.g. data reception,
+timeout, etc.), the application layer is informed by a callback.
+2. Then, the application decides whether to let the Acklio FullSDK process the
+   event or not. If yes, it calls a dedicated function.
+3. Once an event has been processed (the dedicated function has returned), the
+lab.SCHC FullSDK does not perform any additional processing.
 
 ### Sequence diagrams
 
@@ -250,7 +318,8 @@ The following sequence diagrams present some use cases.
 
 #### Interface initialization and configuration
 
-[diagram-initialization](#todo)
+![interface-initialization](/img/concepts/howto-if-init.png "Initialization and
+Configuration")
 
 The above diagram presents the successive function calls that must be performed
 by the application layer to initialize and configure the interface that will be
@@ -283,6 +352,9 @@ the [configuration of the datagram interface](#todo).
 
 #### Packet transmission with fragmentation
 
+![transmission-with-fragmentation](/img/concepts/howto-tx-frag.png "Transmission
+with fragmentation")
+
 The above diagram presents the calls for the transmission of a packet involving
 SCHC fragmentation.
 
@@ -313,6 +385,9 @@ the packet has been transmitted successfully.
 
 #### Packet reception without fragmentation
 
+![reception-without-fragmentation](/img/concepts/howto-rx-nofrag.png "Reception
+without fragmentation")
+
 The diagram above presents the calls for the reception of a packet, without SCHC
 fragmentation.
 
@@ -330,6 +405,8 @@ it is shown in the previous section.
 
 The following sequence diagram presents the initialization of the L2A layer:
 
+![l2a-initialization](/img/concepts/howto-l2a-init.png "L2A Initialization")
+
 In step 1, the FullSDK calls the initialization function.
 
 In step 2, the L2A layer signals to the FullSDK that it needs to perform some
@@ -343,6 +420,8 @@ FullSDK will not try to use L2A layer for transmission or reception as long as
 the callback informing about connectivity availability has not been called.
 
 The following sequence diagram presents the handling of a transmission request:
+
+![l2a-transmission](/img/concepts/howto-l2a-tx.png "L2A Transmission")
 
 In step 1, the FullSDK asks for the MTU that will be used in the next
 transmission. This request allows the SDK to support L2 technologies with
@@ -368,7 +447,7 @@ technologies with duty cycle restrictions.
 In a bare metal project, where lowering power consumption is important, the
 application architecture is usually similar to this one, based on a main loop:
 
-[img]
+![bare-metal-example](/img/concepts/howto-baremetal.png "Bare metal example")
 
 After initialization, the main loop usually enters sleep mode. It exits from
 sleep mode when an interrupt occurs. Each interrupt service routine signals to
