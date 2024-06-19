@@ -10,9 +10,9 @@ references.
 
 The present Documentation website consists of **four main sections**:
 
-1. **[The SCHC Adaptation Layer](/docs/schc.md)**:
+1. **[The SCHC Mechanism](/docs/schc.md)**:
     - Learn the basics of SCHC
-    - Benefits
+    - The SCHC adaptation layer
 2. **[Getting started](/docs/getting-started.md)**:
     - Requisites and compatibility
     - Building and debugging applications
