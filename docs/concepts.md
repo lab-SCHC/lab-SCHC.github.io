@@ -1,43 +1,46 @@
 <!-- Breadcrumbs -->
-< [Lab.SCHC FullSDK Documentation](/README.md) /
+< [Lab.SCHC FullSDK Documentation](/#) /
 <!-- /Breadcrumbs -->
 
-# FullSDK Concepts
+*On this page:*
 
 <!-- TOC -->
 
-  - [Preface](#preface)
-      - [Intended audience](#intended-audience)
-      - [Related documents](#related-documents)
-  - [General architecture](#general-architecture)
-      - [Overview](#overview)
-      - [Datagram and Network layers](#datagram-and-network-layers)
-          - [Datagram layer](#datagram-layer)
-          - [Network layer](#network-layer)
-      - [C/D layer](#cd-layer)
-      - [F/R layer](#fr-layer)
-      - [MUX layer](#mux-layer)
-      - [L2A layer](#l2a-layer)
-      - [Management layer](#management-layer)
-  - [Flow control](#flow-control)
-  - [Interfaces](#interfaces)
-      - [Management interface](#management-interface)
-      - [Datagram interface](#datagram-interface)
-      - [Network interface](#network-interface)
-      - [Layer-two adaptation interface](#layer-two-adaptation-interface)
-  - [How to use the lab.SCHC FullSDK](#how-to-use-the-labschc-fullsdk)
-      - [Role](#role)
-      - [Layer integration](#layer-integration)
-      - [Paradigm](#paradigm)
-      - [Sequence diagrams](#sequence-diagrams)
-          - [Interface initialization and configuration](#interface-initialization-and-configuration)
-          - [Packet transmission with fragmentation](#packet-transmission-with-fragmentation)
-          - [Packet reception without fragmentation](#packet-reception-without-fragmentation)
-          - [L2A layer initialization and transmission handling](#l2a-layer-initialization-and-transmission-handling)
-      - [Bare metal projects](#bare-metal-projects)
-      - [RTOS projects](#rtos-projects)
+- [FullSDK Concepts](#fullsdk-concepts)
+    - [Preface](#preface)
+        - [Intended audience](#intended-audience)
+        - [Related documents](#related-documents)
+    - [General architecture](#general-architecture)
+        - [Overview](#overview)
+        - [Datagram and Network layers](#datagram-and-network-layers)
+            - [Datagram layer](#datagram-layer)
+            - [Network layer](#network-layer)
+        - [C/D layer](#cd-layer)
+        - [F/R layer](#fr-layer)
+        - [MUX layer](#mux-layer)
+        - [L2A layer](#l2a-layer)
+        - [Management layer](#management-layer)
+    - [Flow control](#flow-control)
+    - [Interfaces](#interfaces)
+        - [Management interface](#management-interface)
+        - [Datagram interface](#datagram-interface)
+        - [Network interface](#network-interface)
+        - [Layer-two adaptation interface](#layer-two-adaptation-interface)
+    - [How to use the lab.SCHC FullSDK](#how-to-use-the-labschc-fullsdk)
+        - [Role](#role)
+        - [Layer integration](#layer-integration)
+        - [Paradigm](#paradigm)
+        - [Sequence diagrams](#sequence-diagrams)
+            - [Interface initialization and configuration](#interface-initialization-and-configuration)
+            - [Packet transmission with fragmentation](#packet-transmission-with-fragmentation)
+            - [Packet reception without fragmentation](#packet-reception-without-fragmentation)
+            - [L2A layer initialization and transmission handling](#l2a-layer-initialization-and-transmission-handling)
+        - [Bare metal projects](#bare-metal-projects)
+        - [RTOS projects](#rtos-projects)
 
 <!-- /TOC -->
+
+# FullSDK Concepts
 
 ## Preface
 

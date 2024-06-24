@@ -1,23 +1,26 @@
 <!-- Breadcrumbs -->
-< [Lab.SCHC FullSDK Documentation](/README.md) /
+< [Lab.SCHC FullSDK Documentation](/#) /
 <!-- /Breadcrumbs -->
 
-# The SCHC Mechanism
+*On this page:*
 
 <!-- TOC -->
 
-  - [Standards](#standards)
-  - [Principle](#principle)
-  - [Static Context](#static-context)
-      - [Communication Context](#communication-context)
-      - [Rules](#rules)
-  - [Header Compression](#header-compression)
-  - [Fragmentation](#fragmentation)
-      - [Fragmentation Modes](#fragmentation-modes)
-  - [The SCHC Adaptation Layer](#the-schc-adaptation-layer)
-      - [About stacks](#about-stacks)
+- [The SCHC Mechanism](#the-schc-mechanism)
+    - [Standards](#standards)
+    - [Principle](#principle)
+    - [Static Context](#static-context)
+        - [Communication Context](#communication-context)
+        - [Rules](#rules)
+    - [Header Compression](#header-compression)
+    - [Fragmentation](#fragmentation)
+        - [Fragmentation Modes](#fragmentation-modes)
+    - [The SCHC Adaptation Layer](#the-schc-adaptation-layer)
+        - [About stacks](#about-stacks)
 
 <!-- /TOC -->
+
+# The SCHC Mechanism
 
 SCHC (pronounce "chic") is the acronym for Static Context Header Compression, a
 standard compression and fragmentation mechanism defined by the IPv6 over LPWAN
@@ -50,7 +53,7 @@ communication context is a collection of header fields that are recurring and
 not relevant, in comparison with the payload that contains the metering data.
 
 Lab.SCHC FullSDK stores these communication contexts both in the device and in
-the network management platform, referred to as the SCHC Core, rather than
+the network management platform, referred to as the SCHC Gateway, rather than
 saturating the bandwidth with such information. By reducing the amount of data
 transmitted over radio connectivity, using IP becomes possible.
 
@@ -59,7 +62,7 @@ transmitted over radio connectivity, using IP becomes possible.
 The SCHC mechanism translates the communication context into a set of rules,
 each having a RuleID.
 
-Rules are configured both on the SCHC Core, and on the connected objects, so
+Rules are configured both on the SCHC Gateway, and on the connected objects, so
 that sender and recipient share the same set of rules to describe the
 communication. A "static" context assumes that the description of the rule does
 not change during transmission.
@@ -95,8 +98,8 @@ predictable message content) it reduces the overhead to a few bytes and saves
 network traffic. And solves the difficulty encountered by RoHC and 6LoWPAN
 mechanisms by the fact.
 
-> The compression rules are configured in the SCHC Core and loaded on the device
-> as a package without having to recompile the library.
+> The compression rules are configured in the SCHC Gateway and loaded on the
+> device as a package without having to recompile the library.
 
 ## Fragmentation
 
