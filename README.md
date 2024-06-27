@@ -22,8 +22,6 @@ The present Documentation website consists of **four main sections**:
     - How to use
 4. **[FullSDK Reference Manual](/docs/manual.md)**:
     - Public API functions
-    - Detailed architecture
-    - L2A reference implementation
     - Sample applications
 
 ## About
@@ -51,5 +49,5 @@ The lab.SCHC FullSDK turns any IoT device into a native IP one that can be
 addressed from the client application.
 
 It enriches the most constrained LPWAN devices with the ability to use the
-TCP/IP stack, improves functionality and energy performance, and enables
-end-to-end security support. **!?**
+TCP/IP stack, improves functionality and energy performance.
+end-to-end security support.

@@ -59,6 +59,12 @@
                 - [Polling](#polling)
                 - [ACK-Always mode](#ack-always-mode)
                 - [Maximum ACK requests](#maximum-ack-requests)
+    - [Sample applications](#sample-applications)
+        - [Prerequisites](#prerequisites)
+            - [LNS](#lns)
+            - [Hardware and software](#hardware-and-software)
+        - [AT Modem UDP Client](#at-modem-udp-client)
+            - [Operation](#operation)
 
 <!-- /TOC -->
 
@@ -526,3 +532,186 @@ These functions are only used with ACK-Always downlink fragmentation mode.
 
 - `schc_set_max_ack_req()`: Allows to set the value of `MAX ACK REQUESTS` that indicates the number of time a sender will send an ACK before sending an ABORT message. This function must be provided with the parameter `max_ack_req` which value is a 8-bits integer.
 
+## Sample applications
+
+Sample applications for the embedded device are available in the `examples/` folder, within the `full-sdk-delivery` repository.
+
+Our Demo examples aim to demonstrate how lab.SCHC software help the communication between heterogeneous protocols and create a bridge between IoT and IP worlds for fluid data exchange.
+
+### Prerequisites
+
+#### LNS
+
+As the Demo examples are running over LoRa, a LoRa Network Server (LNS) must be configured first. The configuration is similar in many LNS:
+
+1. Provision a LoRa Gateway.
+2. Create an Application.
+3. Provision a device.
+    - Select the appropriate frequency for your region.
+    - Set the LoRaWAN version to 1.0.4.
+    - Regional Parameters version can be set to 1.0.2 revision B for the RP001 region.
+    - Enable class C support and Over-the-Air Activation (OTAA).
+    - Generate and set the DevEUI and AppKey. End device ID must match the DevEUI.
+    - JoinEUI should be set to zeros.
+4. Create an API Key to allow the SCHC Gateway to send downlink packets.
+5. Configure a Webhook Integration (HTTP).
+    - Configure a JSON format.
+    - Set the Token if required by the SCHC Gateway.
+    - Set the target URL to point to the SCHC Gateway.
+
+#### Hardware and software
+
+Besides the configured LNS and LoRa gateway, you will also need:
+
+- A compatible board and Semtech shield:
+    - [NUCLEO-L476RG](https://www.st.com/en/evaluation-tools/nucleo-l476rg.html) with SX1276 or SX1272 shield
+- A [SCHC Gateway](#todo):
+    - [ThingPark X SCHC IPCore](https://docs.thingpark.com/thingpark-x-schc-ipcore/)
+    - [OpenSCHC](https://github.com/openschc/openschc)
+- A serial port terminal software (such as minicom or CuteCom).
+- The `lab-schc-examples` repository. Clone it using the following command:
+```sh
+git clone https://github.com/lab-schc/lab-schc-examples.git
+```
+
+### AT Modem UDP Client
+
+This example illustrates an end-to-end communication from a UDP client to a UDP server in a Python environment. It allows to test uplink and downlink packet transmission from a device (a board for the purpose of the Demo) and a destination server.
+
+1. The device application sends messages to the cloud application on a periodic basis.
+2. The cloud application displays every received message and sends back the message to the device application.
+3. The device application displays every received the message.
+
+The example demonstrates how to use the SCHC SDK using the Datagram API through AT commands with a cloud application expecting IPv6 UDP frames.
+The demo files can be found in the `/at-modem/udp-client/` directory of the `lab-schc-examples` repository.
+
+```sh
+cd lab-schc-examples/at-modem/udp-client/
+head README.md
+```
+
+#### Operation
+
+> This example considers a UDP server application with the IPv6 address
+> `abcd::1` running on port `22222` and the device configured in the SCHC
+> Gateway with the IPv6 address `5454::2` and a UDP port number `33333`.
+
+1. Build and flash the FullSDK `ATModem` example application.
+
+```sh
+cd full-sdk-delivery/
+# Build:
+cmake -S . -B ./build/ -DAPP_NAME=ATModem \
+ -DAPP_VERSION=4.0.0 -DFULLSDK_VERSION=3.0.0 \
+ -DTOOLCHAIN=gcc-arm-none -DTARGET=m4 -DPLATFORM=STM32L476RG-Nucleo \
+ -DL2_STACK=semtech -DNUCLEO_LORA_SHIELD=SX1272 \
+ -DLORAWAN_DEVEUI=fefffffffdff0000 -DLORAWAN_APPEUI=0000000000000000 \
+ -DLORAWAN_APPKEY=11111111111111111111111111111111 \
+ -DEXTENSION_API=template -DTEMPLATE_ID=dynamic && make -C ./build
+# Erase and Flash:
+OPENOCD_TARGET=stm32l4x.cfg make -C openocd/ erase && \
+ OPENOCD_TARGET=stm32l4x.cfg BIN_FILE=build/gcc-arm-none/m4/ATModem.bin \
+ make -C openocd/ flash
+```
+
+> At this point you can already make use of the device as AT Modem and
+> manipulate the stack via AT Commands. Open a serial communication program,
+> such as minicom, and type the `AT` and `AT?` AT commands to verify the device
+> is working properly. Close this serial communication before proceding with the
+> demo.
+
+2. Launch the cloud Python application: the UDP server.
+
+```sh
+cd lab-schc-examples/at-modem/udp-client/
+sudo python3 -m cloud -ip abcd::1 -port 22222
+```
+
+3. Launch the device Python application: the UDP client.
+
+```sh
+cd lab-schc-examples/at-modem/udp-client/
+python3 -m device --template compression_rules.bin \
+ --dev-eui fe:ff:ff:ff:fd:ff:00:00 --app-eui 00:00:00:00:00:00:00:00 \
+ --app-key 11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11 \
+ --ipv6-dev-prefix 5454:0000:0000:0000 --ipv6-dev-iid 0000:0000:0000:0002 \
+ --ipv6-app-prefix abcd:0000:0000:0000 --ipv6-app-iid 0000:0000:0000:0001 \
+ --ipv6-dev-port 33333 --ipv6-app-port 22222
+```
+
+> If the program shows an error when opening the serial port, or you have
+> multiple devices connected, edit the `device/serial_device.py` file and set
+> the `SERIAL_DEVICE` parameter to the correct value.
+
+4. Observe the terminal output as the UDP Client application communicates with the device through AT Commands: 
+    1. First, it will configure the device and instruct it to join the network.
+
+    ```
+    request  : ATZ
+    request  : AT+SCHC=VERSION
+    response : AT+SCHC=VERSION
+    response : 3.0.0
+    response : OK
+    request  : ATE=0
+    response : ATE=0
+    response : OK
+    request  : AT+DEUI=fe:ff:ff:ff:fd:ff:00:00
+    response : OK
+    request  : AT+APPEUI=00:00:00:00:00:00:00:00
+    response : OK
+    request  : AT+APPKEY=11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11
+    response : OK
+    request  : AT+JOIN=C
+    response : OK
+    response : +JOINED
+    ```
+
+    2. Then, the SCHC compression rule is loaded.
+
+    ```
+    request  : AT+SCHC=TPL,SET,b1008418960186010101010101818302181c8e880c040102000081410602880d080101000081410002880e140101000081440001234502880f100101000081420000028810080101000081411102881108010100008141400288121840010200008100028813184001020000810102881418400102000081020288151840010200008103028816100102000081040288171001020000810502881818100101000081420000028818191001010000814200000224b2
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,0,5454000000000000
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,1,0000000000000002
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,2,abcd000000000000
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,3,0000000000000001
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,4,8235
+    response : OK
+    request  : AT+SCHC=TPLPARAMS,SET,5,56ce
+    response : OK
+    ```
+
+    3. After that, the UDP Client program instructs the device to use the [Datagram](/docs/concepts.md#datagram-layer) interface to set up the communication socket.
+
+    ```
+    request  : AT+SCHC=API,D
+    response : OK
+    request  : AT+SCHC=SOCKET
+    response : 0
+    response : OK
+    request  : AT+SCHC=BIND,0,5454:0000:0000:0000:0000:0000:0000:0002,33333
+    response : OK
+    ```
+
+    4. Finally, the device and UDP Server Application exchange IP packets.
+
+        - On the device:
+
+        ```
+        request  : AT+SCHC=SEND,0,ABCD:0000:0000:0000:0000:0000:0000:0001,22222,ZRQXKRGGYUUMOXSSEYEOMHJNQOSARIWFKWVUTYYAMGTYLMVHAZLIAADCIDRNONIE
+        response : OK
+        response : +SENDOK,0
+        response : +RECVOK,0:5A5251584B5247475955554D4F5853534559454F4D484A4E514F5341524957464B575655545959414D4754594C4D5648415A4C49414144434944524E4F4E4945
+        ```
+
+        - On de application side:
+
+        ```
+        starting udp server on [abcd::1]:22222
+        receive uplink packet from the device [5454::2]:33333 b'ZRQXKRGGYUUMOXSSEYEOMHJNQOSARIWFKWVUTYYAMGTYLMVHAZLIAADCIDRNONIE'
+        send downlink packet to the device [5454::2]:33333 b'ZRQXKRGGYUUMOXSSEYEOMHJNQOSARIWFKWVUTYYAMGTYLMVHAZLIAADCIDRNONIE'
+        ```
