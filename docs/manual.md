@@ -720,9 +720,9 @@ Besides the configured LNS and LoRa gateway, you will also need:
       IPCore](https://docs.thingpark.com/thingpark-x-schc-ipcore/)
     - [OpenSCHC](https://github.com/openschc/openschc)
 - A serial port terminal software (such as minicom or CuteCom).
-- The `lab-schc-examples` repository. Clone it using the following command:
+- The `lab-schc/examples` repository. Clone it using the following command:
 ```sh
-git clone https://github.com/lab-schc/lab-schc-examples.git
+git clone https://gitlab.com/lab-schc/examples.git
 ```
 
 ### AT Modem UDP Client

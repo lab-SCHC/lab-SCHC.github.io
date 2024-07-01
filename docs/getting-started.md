@@ -71,13 +71,13 @@ Stay tuned!
 
 Setting up a development environment is easy and flexible. You will need to
 clone the [lab.SCHC FullSDK
-Delivery](https://github.com/lab-SCHC/full-sdk-delivery) repository and
+Delivery](https://gitlab.com/lab-schc/sdk/full-sdk-delivery) repository and
 initialize its submodules. Then, you can open the code base using your editor of
 choice, such as [Visual Studio Code](https://code.visualstudio.com/) or
 [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html).
 
 ```sh
-git clone https://github.com/lab-SCHC/full-sdk-delivery.git
+git clone https://gitlab.com/lab-schc/sdk/full-sdk-delivery.git
 cd full-sdk-delivery
 git submodule update --init --recursive
 ```
