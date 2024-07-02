@@ -82,7 +82,7 @@ Things (IoT) domain.
 
 You may also find the following documents useful:
 
-1. [FullSDK Concepts](/docs/concepts.md)
+1. [FullSDK Concepts](/docs/concepts)
 2. [SCHC: Generic Framework for Static Context Header Compression and
    Fragmentation](https://datatracker.ietf.org/doc/html/rfc8724)
 
@@ -104,12 +104,12 @@ developers should consider them during the development process:
 - Forbid dynamic memory allocation.
 
 For more information, please refer to the [FullSDK
-Concepts](/docs/concepts.md#how-to-use-the-labschc-fullsdk) page.
+Concepts](/docs/concepts#how-to-use-the-labschc-fullsdk) page.
 
 ## Public API functions
 
 The following header files are provided for the [SCHC
-interfaces](/docs/concepts.md#interfaces), located in `full-sdk/core/` case.
+interfaces](/docs/concepts#interfaces), located in `full-sdk/core/` case.
 
 | File Name | API |
 | --- | --- |
@@ -197,7 +197,7 @@ optional, and only compatible with Actility's SCHC IPCore.
 
 #### Processing
 
-This section refers to the FullSDK [paradigm](/docs/concepts.md#paradigm).
+This section refers to the FullSDK [paradigm](/docs/concepts#paradigm).
 
 Every time a layer of the FullSDK stack needs to perform a processing as the
 result of some event, the `mgt_processing_required` callback is called.
@@ -845,7 +845,7 @@ python3 -m device --template compression_rules.bin \
     ```
 
     3. After that, the UDP Client program instructs the device to use the
-       [Datagram](/docs/concepts.md#datagram-layer) interface to set up the
+       [Datagram](/docs/concepts#datagram-layer) interface to set up the
        communication socket.
 
     ```
