@@ -20,6 +20,8 @@
         - [MUX layer](#mux-layer)
         - [L2A layer](#l2a-layer)
         - [Management layer](#management-layer)
+    - [Templates and SCHC Rules](#templates-and-schc-rules)
+        - [Dynamic template](#dynamic-template)
     - [Flow control](#flow-control)
     - [Interfaces](#interfaces)
         - [Management interface](#management-interface)
@@ -54,7 +56,7 @@ familiarity with embedded software development, and with Internet of Things
 
 You may also find the following documents useful:
 
-1. [FullSDK Reference Manual](/docs/manual.md)
+1. [FullSDK Reference Manual](/docs/manual)
 2. [SCHC: Generic Framework for Static Context Header Compression and
    Fragmentation](https://datatracker.ietf.org/doc/html/rfc8724)
 
@@ -146,6 +148,37 @@ specific events:
 - Connectivity is available.
 - Connectivity is lost (availability depends on layer 2).
 - [Parameter synchronization](#todo) is done.
+
+## Templates and SCHC Rules
+
+In FullSDK, the concept of Templates refers to the implementation of SCHC Rules
+for physical devices.
+
+A *template* is essentially a SCHC compression rule or set of rules that
+accomodate common values accross devices, while giving the flexibility to set
+device-specific values. These device-specific values are referred to as
+*template parameters*.
+
+For example, the IPv6/UDP stack template defines common SCHC rule fields
+allowing a device to compress and decompress IPv6/UDP packets, but does not
+contain information about the IPv6 addresses and UDP ports of the device or the
+destination application.
+
+It is up to the developer to specify template parameter values.
+
+### Dynamic template
+
+By building the embedded application with a dynamic template (build parameter
+`-DTEMPLATE_ID=dynamic`), the developer can set their own SCHC rule template,
+through the [Management extension
+interface](/docs/manual#extension-of-the-management-interface).
+
+A binary sequence for a FullSDK template is composed as follows:
+
+- **Size (2-bytes)**: The length of the template itself, in bytes (n-bytes).
+- **Template (n-bytes)**: The CBOR sequence representing the template contents.
+- **CRC (2-bytes)**: Result of a CRC-16/CCITT-FALSE check on the
+  `size`+`template` data content.
 
 ## Flow control
 
@@ -331,7 +364,7 @@ related events.
 
 In step 1, the application initializes the management layer and related
 interface. See the reference manual for details on the [initialization of the
-datagram interface](#todo).
+datagram interface](/docs/manual#initialization).
 
 As soon as the management layer has been initialized, the callback signaling
 that the FullSDK needs some processing may be called. In response to this
@@ -343,7 +376,7 @@ The callback requesting processing is called in an interruption context. The
 processing function must not be called from this callback, as its execution may
 take some time. Consequently, the application layer has to decouple the call to
 the processing function from the activation of the callback. See the [reference
-manual](#todo) for more information.
+manual](/docs/manual#list-of-callbacks) for more information.
 
 In step 3, the SDK signals that the LPWAN connectivity is available. For
 instance, for a LoRaWAN network, this means that the Join procedure has been
@@ -351,7 +384,8 @@ successfully performed.
 
 The application layer has to wait for connectivity before interacting with an
 interface. In step 4, the interface is configured. See the reference manual for
-the [configuration of the datagram interface](#todo).
+the [configuration of the datagram
+interface](/docs/manual#datagram-interface-functions).
 
 #### Packet transmission with fragmentation
 
