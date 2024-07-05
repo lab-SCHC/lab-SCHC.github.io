@@ -789,7 +789,7 @@ sudo python3 -m cloud -ip abcd::1 -port 22222
 
 ```sh
 cd lab-schc-examples/at-modem/udp-client/
-python3 -m device --template compression_rules.bin \
+python3 -m device --template device/compression_rules.bin \
  --dev-eui fe:ff:ff:ff:fd:ff:00:00 --app-eui 00:00:00:00:00:00:00:00 \
  --app-key 11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11 \
  --ipv6-dev-prefix 5454:0000:0000:0000 --ipv6-dev-iid 0000:0000:0000:0002 \
