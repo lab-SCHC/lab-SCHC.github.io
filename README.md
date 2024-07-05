@@ -10,19 +10,19 @@ references.
 
 The present Documentation website consists of **four main sections**:
 
-1. **[The SCHC Mechanism](/docs/schc.md)**:
-    - Learn the basics of SCHC
-    - The SCHC adaptation layer
-2. **[Getting started](/docs/getting-started.md)**:
-    - Requisites and compatibility
-    - Building and debugging applications
-3. **[FullSDK Concepts](/docs/concepts.md)**:
-    - General architecture
-    - Available interfaces
-    - How to use
-4. **[FullSDK Reference Manual](/docs/manual.md)**:
-    - Public API functions
-    - Sample applications
+1. **[The SCHC Mechanism](/docs/schc)**:
+    - [Learn the basics of SCHC](/docs/schc#the-schc-mechanism)
+    - [The SCHC adaptation layer](/docs/schc#the-schc-adaptation-layer)
+2. **[Getting started](/docs/getting-started)**:
+    - [Requisites and compatibility](/docs/getting-started#requisites-and-compatibility)
+    - [Building and debugging applications](/docs/getting-started#building-applications)
+3. **[FullSDK Concepts](/docs/concepts)**:
+    - [General architecture](/docs/concepts#general-architecture)
+    - [Available interfaces](/docs/concepts#interfaces)
+    - [How to use](/docs/concepts#how-to-use-the-labschc-fullsdk)
+4. **[FullSDK Reference Manual](/docs/manual)**:
+    - [Public API functions](/docs/manual#public-api-functions)
+    - [Sample applications](/docs/manual#sample-applications)
 
 ## About
 
